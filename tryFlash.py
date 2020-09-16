@@ -75,12 +75,12 @@ def entire_document(yearSeason):
     footer = soup.find(id='seasonEventsTable-footer')
     nexts = footer.select('li.next.disabled')
  
-    print("first one")
+    print("first page")
     i = 0
 
     while (len(nexts) == 0): 
         i += 1
-        print("next one: " + str(i))
+        print("next page: " + str(i))
 
         nextButton = browser.find_element_by_css_selector('.next a')
         nextButton.click()
@@ -164,7 +164,6 @@ def create_csv_table(writer, idValue):
     
     for match in eachMatch:
         allStats = match.find_all('td', attrs={'class': 'stats'})
-        print(allStats)
         if (len(allStats) == 0 or allStats == None):
             ids.append("")
         else: 
@@ -322,7 +321,7 @@ def create_csv_table(writer, idValue):
         writer.writerow(match)
 
 
-entire_document('2008')
+# entire_document('2008')
 
 
 
