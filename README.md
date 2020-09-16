@@ -19,7 +19,10 @@ To run the script, you need to run flashMongo.py in python, where you will be as
 
 ### Outputs
 
-    Keep in mind that the program does run slow. In order to track progress, the program prints out the initial list of tournament ids from that year as well as which current tournament id is associated with the current webpage being scraped. Additionally, it prints out which specific match on the page is being scraped.
+    Keep in mind that the program does run slow. In order to track progress, the program
+    prints out the initial list of tournament ids from that year as well as which
+    current tournament id is associated with the current webpage being scraped. Additionally,
+    it prints out which specific match on the page is being scraped.
 
 ### Packages
 
