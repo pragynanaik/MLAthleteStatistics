@@ -133,195 +133,201 @@ def entire_document(yearSeason):
 # writes to an inputted csv file writer, information concerning matches based on an inputted year, month, and day 
 def create_csv_table(writer, idValue):
 
-    option = Options()
+    if (idValue != '/tournamentEvent?tournamentEventId=3323'): 
+        option = Options()
 
-    option.add_argument("--disable-infobars")
-    option.add_argument("start-maximized")
-    option.add_argument("--disable-extensions")
+        option.add_argument("--disable-infobars")
+        option.add_argument("start-maximized")
+        option.add_argument("--disable-extensions")
 
-    # Pass the argument 1 to allow and 2 to block
-    option.add_experimental_option("prefs", { 
-        "profile.default_content_setting_values.notifications": 1 
-    })
+        # Pass the argument 1 to allow and 2 to block
+        option.add_experimental_option("prefs", { 
+            "profile.default_content_setting_values.notifications": 1 
+        })
 
 
-    browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
-    browser.get("https://www.ultimatetennisstatistics.com" + idValue)
-    cookies = browser.find_element_by_css_selector('#cookiesNotification button')
-    cookies.click()
+        browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
+        browser.get("https://www.ultimatetennisstatistics.com" + idValue)
+        cookies = browser.find_element_by_css_selector('#cookiesNotification button')
+        cookies.click()
 
-    initialBrowser = browser.page_source
-    initialSoup = BeautifulSoup(initialBrowser, 'html.parser')
-    
-    matches = []
-    bigDiv = initialSoup.find('div', attrs={'class':'col-md-2'})
-    info = bigDiv.find_all('td')
-    dateOfMatch = info[2].text
+        initialBrowser = browser.page_source
+        initialSoup = BeautifulSoup(initialBrowser, 'html.parser')
+        
+        matches = []
+        bigDiv = initialSoup.find('div', attrs={'class':'col-md-2'})
+        info = bigDiv.find_all('td')
+        dateOfMatch = info[2].text
 
-    resultsTable = initialSoup.find(id="resultsTable")
-    eachMatch = resultsTable.find_all('table', attrs={'class': 'table-bordered'})
-    ids = []
-    
-    for match in eachMatch:
-        allStats = match.find_all('td', attrs={'class': 'stats'})
-        if (len(allStats) == 0 or allStats == None):
-            ids.append("")
-        else: 
-            if (allStats[0].find('a') is not None):
-                ids.append(allStats[0].find('a').get('id'))
-
-    totalMatches = len(ids)
-
-    for matchVal in range(totalMatches):
-        idVal = ids[matchVal]
-  
-        if (idVal != ''): 
-            statistics = browser.find_element_by_id(idVal)
-            if(statistics.is_displayed()):
-                if (idVal != 'matchStats-139048'):
-                    statistics.click()
-                    time.sleep(4)
-            else:
-                idVal = ''
-
-        browserURL = browser.page_source
-
-        soup = BeautifulSoup(browserURL, 'html.parser')
-        matchId = idVal
-
-        resultsTable = soup.find(id="resultsTable")
+        resultsTable = initialSoup.find(id="resultsTable")
         eachMatch = resultsTable.find_all('table', attrs={'class': 'table-bordered'})
-        i = eachMatch[matchVal]
-
-        matchInfo = [dateOfMatch, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
-            '', '', '', '', '', '', '', '', '', '', '']
-        wonMatch = 0
-        player = 0
-        players = []
-
-        rows = i.find_all('td', attrs={'class': 'player'})
-        for j in rows: 
-            player = player + 1
-            winner = j.find_all('strong')
-            if (len(winner) == 1):
-                wonMatch = player
+        ids = []
         
+        for match in eachMatch:
+            allStats = match.find_all('td', attrs={'class': 'stats'})
+            if (len(allStats) == 0 or allStats == None):
+                ids.append("")
+            else: 
+                if (allStats[0].find('a') is not None):
+                    ids.append(allStats[0].find('a').get('id'))
 
-            players.append(j.find('a').text)
+        totalMatches = len(ids)
 
-        allRows = i.find_all('tr')
-        score1 = []
-        score2 = []
-        for p in range(2):
-            allTD = allRows[p].find_all('td', attrs={'class': 'score'})
-            if p == 0:
-                for k in allTD:
-                    if (len(k.text) == 0): 
-                        score1.append('')
-                    else: 
-                        score1.append(k.text[0])
-            else:
-                for k in allTD: 
-                    if (len(k.text) == 0): 
-                        score2.append('')
-                    else: 
-                        score2.append(k.text[0])
-        
-        totalScore = ''
-        for a in range(len(score1) - 1):
-            totalScore = totalScore + "(" + score1[a] + '-' + score2[a] + ')' 
-        
-        matchInfo[1] = players[0]
-        matchInfo[2] = players[1]
-        matchInfo[3] = totalScore
-        matchInfo[4] = players[wonMatch - 1]
+        for matchVal in range(totalMatches):
+            idVal = ids[matchVal]
+    
+            if (idVal != ''): 
+                statistics = browser.find_element_by_id(idVal)
+                if(statistics.is_displayed()):
+                    if (idVal != 'matchStats-139048' and idVal != 'matchStats-139049'):
+                        try: 
+                            statistics.click()
+                        except: 
+                            print("couldn't print: " + idVal)
+                            idVal = ''
 
-        # statsTD = eachMatch.find('td', attrs={'class': 'stats'})
+                        time.sleep(4)
+                else:
+                    idVal = ''
 
-        if (idVal != ''):
-            otherData = i.find('div', attrs={'id': matchId + 'Overview'})
-            print(idVal)
-            if (otherData is not None):
-                overviewRows = otherData.find_all('tr')
+            browserURL = browser.page_source
 
-                acePerc = overviewRows[1].find_all('th')
-                matchInfo[7] = acePerc[0].text
-                matchInfo[8] = acePerc[3].text
+            soup = BeautifulSoup(browserURL, 'html.parser')
+            matchId = idVal
 
-                doubleFault = overviewRows[2].find_all('th')
-                matchInfo[9] = doubleFault[0].text
-                matchInfo[10] = doubleFault[3].text
+            resultsTable = soup.find(id="resultsTable")
+            eachMatch = resultsTable.find_all('table', attrs={'class': 'table-bordered'})
+            i = eachMatch[matchVal]
 
-                firstServePerc = overviewRows[3].find_all('th')
-                matchInfo[11] = firstServePerc[0].text
-                matchInfo[12] = firstServePerc[3].text
+            matchInfo = [dateOfMatch, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                '', '', '', '', '', '', '', '', '', '', '']
+            wonMatch = 0
+            player = 0
+            players = []
 
-                firstServeWon = overviewRows[4].find_all('th')
-                matchInfo[13] = firstServeWon[0].text
-                matchInfo[14] = firstServeWon[3].text
+            rows = i.find_all('td', attrs={'class': 'player'})
+            for j in rows: 
+                player = player + 1
+                winner = j.find_all('strong')
+                if (len(winner) == 1):
+                    wonMatch = player
+            
 
-                secondServeWon = overviewRows[5].find_all('th')
-                matchInfo[15] = secondServeWon[0].text
-                matchInfo[16] = secondServeWon[3].text
+                players.append(j.find('a').text)
 
-                breakPoints = overviewRows[6].find_all('th')
-                matchInfo[17] = breakPoints[0].text
-                matchInfo[18] = breakPoints[3].text
+            allRows = i.find_all('tr')
+            score1 = []
+            score2 = []
+            for p in range(2):
+                allTD = allRows[p].find_all('td', attrs={'class': 'score'})
+                if p == 0:
+                    for k in allTD:
+                        if (len(k.text) == 0): 
+                            score1.append('')
+                        else: 
+                            score1.append(k.text[0])
+                else:
+                    for k in allTD: 
+                        if (len(k.text) == 0): 
+                            score2.append('')
+                        else: 
+                            score2.append(k.text[0])
+            
+            totalScore = ''
+            for a in range(len(score1) - 1):
+                totalScore = totalScore + "(" + score1[a] + '-' + score2[a] + ')' 
+            
+            matchInfo[1] = players[0]
+            matchInfo[2] = players[1]
+            matchInfo[3] = totalScore
+            matchInfo[4] = players[wonMatch - 1]
 
-                firstReturnWon = overviewRows[9].find_all('th')
-                matchInfo[21] = firstReturnWon[0].text
-                matchInfo[22] = firstReturnWon[3].text
+            # statsTD = eachMatch.find('td', attrs={'class': 'stats'})
 
-                secondReturnWon = overviewRows[10].find_all('th')
-                matchInfo[23] = secondReturnWon[0].text
-                matchInfo[24] = secondReturnWon[3].text
+            if (idVal != ''):
+                otherData = i.find('div', attrs={'id': matchId + 'Overview'})
+                print(idVal)
+                if (otherData is not None):
+                    overviewRows = otherData.find_all('tr')
 
-                servicePoints = overviewRows[7].find_all('th')
-                matchInfo[35] = servicePoints[0].text
-                matchInfo[36] = servicePoints[3].text
+                    acePerc = overviewRows[1].find_all('th')
+                    matchInfo[7] = acePerc[0].text
+                    matchInfo[8] = acePerc[3].text
 
-                returnPoints = overviewRows[12].find_all('th')
-                matchInfo[37] = returnPoints[0].text
-                matchInfo[38] = returnPoints[3].text
+                    doubleFault = overviewRows[2].find_all('th')
+                    matchInfo[9] = doubleFault[0].text
+                    matchInfo[10] = doubleFault[3].text
 
-                totalPoints = overviewRows[15].find_all('th')
-                matchInfo[39] = totalPoints[0].text
-                matchInfo[40] = totalPoints[3].text
+                    firstServePerc = overviewRows[3].find_all('th')
+                    matchInfo[11] = firstServePerc[0].text
+                    matchInfo[12] = firstServePerc[3].text
 
-                serveData = i.find('div', attrs={'id': matchId + 'Serve'})
-                serveRows = serveData.find_all('tr')
+                    firstServeWon = overviewRows[4].find_all('th')
+                    matchInfo[13] = firstServeWon[0].text
+                    matchInfo[14] = firstServeWon[3].text
 
-                serviceGames = serveRows[15].find_all('th')
-                matchInfo[43] = serviceGames[0].text
-                matchInfo[44] = serviceGames[3].text
+                    secondServeWon = overviewRows[5].find_all('th')
+                    matchInfo[15] = secondServeWon[0].text
+                    matchInfo[16] = secondServeWon[3].text
 
-                returnData = i.find('div', attrs={'id': matchId + 'Return'})
-                returnRows = returnData.find_all('tr')
+                    breakPoints = overviewRows[6].find_all('th')
+                    matchInfo[17] = breakPoints[0].text
+                    matchInfo[18] = breakPoints[3].text
 
-                returnGames = returnRows[13].find_all('th')
-                matchInfo[45] = returnGames[0].text
-                matchInfo[46] = returnGames[3].text
+                    firstReturnWon = overviewRows[9].find_all('th')
+                    matchInfo[21] = firstReturnWon[0].text
+                    matchInfo[22] = firstReturnWon[3].text
 
-                totalData = i.find('div', attrs={'id': matchId + 'Total'})
-                totalRows = totalData.find_all('tr')
+                    secondReturnWon = overviewRows[10].find_all('th')
+                    matchInfo[23] = secondReturnWon[0].text
+                    matchInfo[24] = secondReturnWon[3].text
 
-                totalGames = totalRows[7].find_all('th')
-                matchInfo[47] = totalGames[0].text
-                matchInfo[48] = totalGames[3].text
+                    servicePoints = overviewRows[7].find_all('th')
+                    matchInfo[35] = servicePoints[0].text
+                    matchInfo[36] = servicePoints[3].text
 
-                statistics.click()
+                    returnPoints = overviewRows[12].find_all('th')
+                    matchInfo[37] = returnPoints[0].text
+                    matchInfo[38] = returnPoints[3].text
 
-        matches.append(matchInfo)
+                    totalPoints = overviewRows[15].find_all('th')
+                    matchInfo[39] = totalPoints[0].text
+                    matchInfo[40] = totalPoints[3].text
 
-    print(idValue)
+                    serveData = i.find('div', attrs={'id': matchId + 'Serve'})
+                    serveRows = serveData.find_all('tr')
 
-    browser.close()
-    for match in matches:
-        writer.writerow(match)
+                    serviceGames = serveRows[15].find_all('th')
+                    matchInfo[43] = serviceGames[0].text
+                    matchInfo[44] = serviceGames[3].text
+
+                    returnData = i.find('div', attrs={'id': matchId + 'Return'})
+                    returnRows = returnData.find_all('tr')
+
+                    returnGames = returnRows[13].find_all('th')
+                    matchInfo[45] = returnGames[0].text
+                    matchInfo[46] = returnGames[3].text
+
+                    totalData = i.find('div', attrs={'id': matchId + 'Total'})
+                    totalRows = totalData.find_all('tr')
+
+                    totalGames = totalRows[7].find_all('th')
+                    matchInfo[47] = totalGames[0].text
+                    matchInfo[48] = totalGames[3].text
+
+                    statistics.click()
+
+            matches.append(matchInfo)
+
+        print(idValue)
+
+        browser.close()
+        for match in matches:
+            writer.writerow(match)
 
 
-# entire_document('2008')
+entire_document('2008')
 
 
 
