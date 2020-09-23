@@ -7,7 +7,7 @@ from tryFlash import entire_document
 
 client = MongoClient("mongodb+srv://Pragyna:NavyBlue2016@mlathletedataset.lhiuy.mongodb.net/AthleteData?retryWrites=true&w=majority")
 db = client.dataStatistics 
-rangeBoolean = input("Which year would you like to add to the database?")
+rangeBoolean = input("Which year would you like to add to the database? ")
 
 allYear = db['season' + rangeBoolean]
 entire_document(rangeBoolean)
