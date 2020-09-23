@@ -4,6 +4,8 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait 
+from webdriver_manager.chrome import ChromeDriverManager
+
  
 from selenium.webdriver.common.by import By       
 from selenium.webdriver.support import expected_conditions as EC
@@ -42,15 +44,17 @@ def entire_document(yearSeason):
     option.add_argument("--disable-infobars")
     option.add_argument("start-maximized")
     option.add_argument("--disable-extensions")
+    option.add_argument("--headless")  
 
     # Pass the argument 1 to allow and 2 to block
     option.add_experimental_option("prefs", { 
         "profile.default_content_setting_values.notifications": 1 
     })
     
-    browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
-
+    # browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
+    browser = webdriver.Chrome(chrome_options=option, executable_path=ChromeDriverManager().install())
     browser.get("https://www.ultimatetennisstatistics.com/season?season=" + yearSeason)
+    browser.set_window_position(-10000,-10000)
 
     cookies = browser.find_element_by_css_selector('#cookiesNotification button')
     cookies.click()
@@ -139,6 +143,9 @@ def create_csv_table(writer, idValue):
         option.add_argument("--disable-infobars")
         option.add_argument("start-maximized")
         option.add_argument("--disable-extensions")
+        option.add_argument("--headless") 
+        option.add_argument('window-size=1920x1080')
+        option.add_argument("disable-gpu")
 
         # Pass the argument 1 to allow and 2 to block
         option.add_experimental_option("prefs", { 
@@ -146,7 +153,9 @@ def create_csv_table(writer, idValue):
         })
 
 
-        browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
+        # browser = webdriver.Chrome(chrome_options=option, executable_path='/Users/pragynanaik/Desktop/MLAthleteStatistics/selenium/webdriver/chrome/chromedriver')
+        # browser = webdriver.Chrome(ChromeDriverManager().install()) 
+        browser = webdriver.Chrome(chrome_options=option, executable_path=ChromeDriverManager().install())
         browser.get("https://www.ultimatetennisstatistics.com" + idValue)
         cookies = browser.find_element_by_css_selector('#cookiesNotification button')
         cookies.click()
@@ -327,7 +336,7 @@ def create_csv_table(writer, idValue):
             writer.writerow(match)
 
 
-entire_document('2008')
+# entire_document('2008')
 
 
 
